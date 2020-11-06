@@ -23,8 +23,10 @@ def run(problem, params):
     maxit = params.maxit
     npop = params.npop
     pc = params.pc # proportion of children to main population
-    nc = np.round(pc*npop/2)*2 # to round nc to the nearest multiple of two for later use
+    nc = int(np.round(pc*npop/2)*2) # to round nc to the nearest multiple of two for later use
     gamma = params.gamma
+    mu = params.mu
+    sigma = params.sigma
 
     """
     ----INITIALIZATION----
@@ -43,8 +45,8 @@ def run(problem, params):
     for i in range (0,npop):
         pop[i].position = np.random.uniform(varmin, varmax, nvar)# set a random point for position to begin. Creates nvar uniformly distributed random numbers from varmin to varmax
         pop[i].cost = costfunc(pop[i].position) # cost field equals the output of the cost function of the random number assigned above
-        if pop[i].cost < bestsol.cost: # THIS IS BECAUSE SPHERE IS A MINIMIZATION PROBLEM, WE ARE TRYING TO GET THE SMALLER VALUE, THE COMPARISON MAY CHANGE
-            bestsol.pop[i].deepcopy() # so that changes to bestsol do NOT affect pop[i]
+        if pop[i].cost < bestsol.cost: # THIS IS BECAUSE SPHERE IS A MINIMIZATION PROBLEM, WE ARE TRYING TO GET THE SMALLER VALUE, THE COMPARISON MAY CHANGE. we may instead of choosing the smallest, choose whichever is closest to the real stock
+            bestsol = pop[i].deepcopy() # so that changes to bestsol do NOT affect pop[i]
         
     # Best Cost per Iteration
     bestcost = np.empty(maxit) #creates an empty array with the maxit number of spaces
@@ -65,16 +67,56 @@ def run(problem, params):
             p1 = pop[q[0]]
             p2 = pop[q[1]] # p1 and p2 are parents that are chosen randomly using the array q
 
+            # Perform Crossover
             c1, c2 = crossover(p1, p2, gamma) # crossover function accepts two structures parents 1 and 2 for crossover
 
+            # Perform Mutation
+            c1 = mutate(c1, mu, sigma)
+            c2 = mutate(c2, mu, sigma)
 
+            # Apply Bounds to the positions
+            apply_bound(c1, varmin, varmax)
+            apply_bound(c2, varmin, varmax)
 
+            # Evaluate first offspring
+            c1.cost = costfunc(c1.position)
+            if c1.cost < bestsol.cost:
+                bestsol = c1.deepcopy() # because this is a minimization problem, the better solution would be the smaller one, so the < operator is used.
+
+            # Evaluate dsecond offspring
+            c2.cost = costfunc(c2.position)
+            if c2.cost < bestsol.cost:
+                bestsol = c2.deepcopy() # because this is a minimization problem, the better solution would be the smaller one, so the < operator is used.
+
+            """
+            ----MERGE MAIN POPULATION AND OFFSPRING
+            """
+            # Add offspring to popc (children population which will now contain nc amount of children)
+            popc.append(c1)
+            popc.append(c2)
+
+        # Merge, Sort, and Select
+        pop = pop + popc # MERGE WOO
+
+        """
+        ----EVALUATE SORT AND SELECT----
+        """
+        pop = sorted(pop, key=lambda x: x.cost) # the key of the sorting operation is an anonymous function that returns x.cost for any x in the population, USING THE COST VALUE AS THE KEY VALUE
+        pop = pop[0:npop] # selects the highest sorted individuals to bring it back down to npop individuals in pop
+
+        # Store Best cost
+        bestcost[it] = bestsol.cost
+
+        # Show iteration information
+        print("Iteration {}: Best Cost = {}".format(it, bestcost[it]))
 
 
     # Output
     out = structure() 
     out.pop = pop #stores the output of pop
-
+    out.bestsol = bestsol
+    out.bestcost = bestcost
+    
     return out
 
 def crossover(p1, p2, gamma=0.1): # must return two offsprings, gamma is the bound limit for crossovers
@@ -90,4 +132,16 @@ def crossover(p1, p2, gamma=0.1): # must return two offsprings, gamma is the bou
     c2.position = alpha*p2.position+ (1-alpha)*p1.position # Crossover Method
     return c1, c2
 
-def mutate(x, mu, sigma): # unmutated solution x, mutation rate mu, step size / standard deviation sigma (for gaussian random distribution)
+def mutate(x, mu, sigma): # unmutated solution x, mutation rate mu (how many % genes to modify), step size / standard deviation sigma (for gaussian random distribution)
+    """
+    ----MUTATE----
+    """
+    y = x.deepcopy() # copy of original solution so we can modify it to the mutated form
+    flag = np.random.rand(*x.position.shape) <= mu #<--------- This expression is used to decide whether or not to mutate a gene. It picks a random number from 0 to 1 and if less or equal to mu then it selects it for mutation.
+    ind = np.argwhere(flag) # returns the indices of an array where the expression is true
+    y.position[ind] += sigma*np.random.randn(*ind.shape) # executes the mutation on the indices where flag was TRUE by adding a random number with the standard deviation sigma.
+    return y
+
+def apply_bound(x, varmin, varmax): # compares position of x to varmin and varmax just incase it's out of bounds
+    x.position = np.maximum(x.position, varmin) # if everything is fine after mutation, then x.position will stay the same. If its below varmin, it'll just be replaced by varmin.
+    x.position = np.minimum(x.position, varmax)

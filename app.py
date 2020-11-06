@@ -21,6 +21,8 @@ params.maxit = 100 # maximum # iterations of algorithm (common among evolutionar
 params.npop = 20 # initial population size
 params.pc = 1 # proportion of children to parents
 params.gamma = 0.1 # used for the bounds of the crossovers in ga.py
+params.mu = 0.2 # mutation rate (% of genes in each child that will get mutated)
+params.sigma = 0.1 # standard deviation for gaussian distribution for random number for mutation
 
 # Run GA (will accept two arguments, problem and params)
 out = ga.run(problem, params) # runs the GA that's defined in ga.py that we imported at the start, and outputs its value in the variable out
