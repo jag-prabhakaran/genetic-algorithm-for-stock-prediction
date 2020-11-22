@@ -4,12 +4,18 @@ from ypstruct import structure
 import ga
 
 # Cost Function / Sphere test function
-def sphere(x):
-    return sum(x**2)
+def prices(x):
+
+    # Retrieve the output from the neural network as well as the real answer
+
+    # Apply some formula using x to the NN's output 
+
+    # Save how far the result is from the real answer and return that value. The best solution will be the one with the lowest value.
+    
 
 # Problem Definition
 problem = structure()
-problem.costfunc = sphere # cost function refers to sphere above
+problem.costfunc = prices # cost function refers to sphere above
 problem.nvar = 5 # structure space (number of decision variables)
 problem.varmin = -10 # structure space (lower bound of the variables)
 problem.varmax = 10 # Structure space (upper bound of the variables)

@@ -38,14 +38,14 @@ def run(problem, params):
 
     #BestSolution Ever Found
     bestsol = empty_individual.deepcopy() # Creates a deep copy of the empty_individual structure and stores it in bestsol, so that any change in bestsol will NOT affect empty_individual
-    bestsol.cost = np.inf # To initialize, we use the worst value of the cost function. IN THE SPHERE CASE, a minimization problem, it would be INFINITY
+    bestsol.cost = np.inf # To initialize, we use the worst value of the cost function. in our case, it would be infinity
 
     # Initialize Population
     pop = empty_individual.repeat(npop) # pop becomes an array of npop amount of the empty_individual structure
     for i in range (0,npop):
         pop[i].position = np.random.uniform(varmin, varmax, nvar)# set a random point for position to begin. Creates nvar uniformly distributed random numbers from varmin to varmax
         pop[i].cost = costfunc(pop[i].position) # cost field equals the output of the cost function of the random number assigned above
-        if pop[i].cost < bestsol.cost: # THIS IS BECAUSE SPHERE IS A MINIMIZATION PROBLEM, WE ARE TRYING TO GET THE SMALLER VALUE, THE COMPARISON MAY CHANGE. we may instead of choosing the smallest, choose whichever is closest to the real stock
+        if pop[i].cost < bestsol.cost: # WE ARE TRYING TO GET THE SMALLER VALUE meaning it's closer to the real stock prices
             bestsol = pop[i].deepcopy() # so that changes to bestsol do NOT affect pop[i]
         
     # Best Cost per Iteration
@@ -83,7 +83,7 @@ def run(problem, params):
             if c1.cost < bestsol.cost:
                 bestsol = c1.deepcopy() # because this is a minimization problem, the better solution would be the smaller one, so the < operator is used.
 
-            # Evaluate dsecond offspring
+            # Evaluate second offspring
             c2.cost = costfunc(c2.position)
             if c2.cost < bestsol.cost:
                 bestsol = c2.deepcopy() # because this is a minimization problem, the better solution would be the smaller one, so the < operator is used.
@@ -96,7 +96,7 @@ def run(problem, params):
             popc.append(c2)
 
         # Merge, Sort, and Select
-        pop = pop + popc # MERGE WOO
+        pop = pop + popc # MERGE
 
         """
         ----EVALUATE SORT AND SELECT----
@@ -126,7 +126,7 @@ def crossover(p1, p2, gamma=0.1): # must return two offsprings, gamma is the bou
     c1 = p1.deepcopy()
     c2 = p1.deepcopy() # creates copies of a parent to initialize them for crossover
 
-    # Uniform Crossover method ahead
+    # Uniform Crossover method
     alpha = np.random.uniform(-gamma, 1+gamma, *c1.position.shape) # * uses all members of shape as separate arguments
     c1.position = alpha*p1.position+ (1-alpha)*p2.position # Crossover Method
     c2.position = alpha*p2.position+ (1-alpha)*p1.position # Crossover Method
