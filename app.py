@@ -3,19 +3,21 @@ import matplotlib.pyplot as plt
 from ypstruct import structure
 import ga
 
-# Cost Function / Sphere test function
+# Cost Function
 def prices(x):
 
-    # Retrieve the output from the neural network as well as the real answer
+    # Retrieve the output from the neural network as well as the real answer, take the inputs to the neural networks
 
     # Apply some formula using x to the NN's output 
+    # IDEA: for each input factor to the neural network, we multiply it by one value in the x[] array. Then, we can add, average, any operation to combine them and add it to our NN result
+    # 
 
     # Save how far the result is from the real answer and return that value. The best solution will be the one with the lowest value.
     
 
 # Problem Definition
 problem = structure()
-problem.costfunc = prices # cost function refers to sphere above
+problem.costfunc = prices # cost function refers to prices above
 problem.nvar = 5 # structure space (number of decision variables)
 problem.varmin = -10 # structure space (lower bound of the variables)
 problem.varmax = 10 # Structure space (upper bound of the variables)
