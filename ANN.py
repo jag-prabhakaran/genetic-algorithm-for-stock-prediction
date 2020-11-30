@@ -9,9 +9,10 @@ import random
 # Importing dataset
 dataset = pd.read_csv('')
 dataset = dataset.dropna()
-dataset = dataset[['Open', 'High', 'Low', 'Close']]
+dataset = dataset[['Open', 'High', 'Low', 'Close']] # No date, adjusted close, volume data
 
-#Preparing the dataset
+# Preparing the dataset
+# High - low price, close - open price, 3-day moving average, 10-day moving average, 30-day moving average, standard deviation for 5 days, relative strength index, Williams %R
 dataset['H-L'] = dataset['High'] - dataset['Low']
 dataset['O-C'] = dataset['Close'] - dataset['Open']
 dataset['3day MA'] = dataset['Close'].shift(1).rolling(window = 3).mean()
@@ -23,7 +24,7 @@ dataset['Williams %R'] = talib.WILLR(dataset['High'].values, dataset['Low'].valu
 
 dataset['Price_Rise'] = np.where(dataset['Close'].shift(-1) > dataset['Close'], 1, 0) # Stores 1 when future closing price is greater
 
-dataset = dataset.dropna()
+dataset = dataset.dropna() # Drops rows with NaN values
 
 data = dataset.iloc[:, 4:]
 
@@ -34,7 +35,7 @@ p = data.shape[1]
 # Make data a np.array
 data = data.values
 
-
+# Split the dataset into 80% training and 20% test data
 train_start = 0
 train_end = int(np.floor(0.8*n))
 test_start = train_end + 1
