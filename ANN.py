@@ -57,16 +57,17 @@ y_test = data_test[:, -1]# Target from testing data
 
 # BULIDING THE ANN
 
-n_features = X_train.shape[1]
+n_features = X_train.shape[1] # Number of features in training data
 
-n_neurons_1 = 512
+# Nuerons - hidden layer
+n_neurons_1 = 512 
 n_neurons_2 = 256
 n_neurons_3 = 128
 
-net = tf.InteractiveSession()
+net = tf.InteractiveSession() 
 
-X = tf.placeholder(dtype=tf.float32, shape=[None, n_features])
-Y = tf.placeholder(dtype=tf.float32, shape=[None])
+X = tf.placeholder(dtype=tf.float32, shape=[None, n_features]) # Placeholder for network's inputs
+Y = tf.placeholder(dtype=tf.float32, shape=[None]) # Placeholder for network's outputs
 
 sigma = 1
 weight_initializer = tf.variance_scaling_initializer(mode="fan_avg", distribution="uniform", scale=sigma)
