@@ -69,64 +69,77 @@ net = tf.InteractiveSession()
 X = tf.placeholder(dtype=tf.float32, shape=[None, n_features]) # Placeholder for network's inputs
 Y = tf.placeholder(dtype=tf.float32, shape=[None]) # Placeholder for network's outputs
 
+# Intialize for 2 variable weights and bias 
 sigma = 1
 weight_initializer = tf.variance_scaling_initializer(mode="fan_avg", distribution="uniform", scale=sigma)
 bias_initializer = tf.zeros_initializer()
 
+# Hidden Weights: each layer passes its output to the next layer as input
+# Layer 1: Variables for hidden weights and biases
 W_hidden_1 = tf.Variable(weight_initializer([n_features, n_neurons_1]))
 bias_hidden_1 = tf.Variable(bias_initializer([n_neurons_1]))
+# Layer 2: Variables for hidden weights and biases
 W_hidden_2 = tf.Variable(weight_initializer([n_neurons_1, n_neurons_2]))
 bias_hidden_2 = tf.Variable(bias_initializer([n_neurons_2]))
+# Layer 3: Variables for hidden weights and biases
 W_hidden_3 = tf.Variable(weight_initializer([n_neurons_2, n_neurons_3]))
 bias_hidden_3 = tf.Variable(bias_initializer([n_neurons_3]))
 
+# Output Weights
+# Output layer
 W_out = tf.Variable(weight_initializer([n_neurons_3, 1]))
 bias_out = tf.Variable(bias_initializer([1]))
 
+# Hidden Layer - to to specify network topology and architecture
 hidden_1 = tf.nn.relu(tf.add(tf.matmul(X, W_hidden_1), bias_hidden_1))
 hidden_2 = tf.nn.relu(tf.add(tf.matmul(hidden_1, W_hidden_2), bias_hidden_2))
 hidden_3 = tf.nn.relu(tf.add(tf.matmul(hidden_2, W_hidden_3), bias_hidden_3))
 
-out = tf.transpose(tf.add(tf.matmul(hidden_3, W_out), bias_out))
+out = tf.transpose(tf.add(tf.matmul(hidden_3, W_out), bias_out)) # Ouput layer
 
-mse = tf.reduce_mean(tf.squared_difference(out, Y))
+mse = tf.reduce_mean(tf.squared_difference(out, Y)) # Cost function for optimization - generates a measure of deviation between networks predictions and observed training targets
 
-opt = tf.train.AdamOptimizer().minimize(mse)
+opt = tf.train.AdamOptimizer().minimize(mse) # Optimizer - does necessary computation to adapt network's weight and bias variables during training
 
 net.run(tf.global_variables_initializer())
 
+# Fitting the NN
 batch_size = 100
 epochs = 10
-
+# Run
 for e in range(epochs):
-    shuffle_data = np.random.permutation(np.arange(len(y_train)))
-    X_train = X_train[shuffle_data]
-    y_train = y_train[shuffle_data]
+    shuffle_data = np.random.permutation(np.arange(len(y_train))) # Shuffle training data
+    X_train = X_train[shuffle_data] # Store input and target data give them to Network as inputs and targets
+    y_train = y_train[shuffle_data] # Store input and target data give them to Network as inputs and targets
+    # Minibatch training
     for i in range(0, len(y_train) // batch_size):
         start = i * batch_size
-        batch_x = X_train[start:start + batch_size]
-        batch_y = y_train[start:start + batch_size]
-        net.run(opt, feed_dict={X: batch_x, Y: batch_y})
+        batch_x = X_train[start:start + batch_size] # Sample X data batch flows through network to output layer
+        batch_y = y_train[start:start + batch_size] # Compares prediction to targets of Y batch
+        net.run(opt, feed_dict={X: batch_x, Y: batch_y}) # Run optimzer with batch and update network parameters
 
-pred = net.run(out, feed_dict={X: X_test})
-y_pred = pred[0]
-y_pred = pred[0] > 0.5
+# Predict method
+pred = net.run(out, feed_dict={X: X_test}) # Pass X_Test as argument and store result in pred
+y_pred = pred[0] # Convert pred data into data frame stored in y_pred
+y_pred = pred[0] > 0.5 # Convert y_pred to store binary values
 
-dataset['y_pred'] = np.NaN
-dataset.iloc[(len(dataset) - len(y_pred)):,-1:] = y_pred
-trade_dataset = dataset.dropna()
+dataset['y_pred'] = np.NaN # Create new column in dataframe dataset storing NaN values
+dataset.iloc[(len(dataset) - len(y_pred)):,-1:] = y_pred # Slice dataframe to store values of ypred in the column
+trade_dataset = dataset.dropna() # Drop all NaN values from dataset and store them in new dataframe
 
-trade_dataset['Tomorrows Returns'] = 0.
-trade_dataset['Tomorrows Returns'] = np.log(trade_dataset['Close']/trade_dataset['Close'].shift(1))
-trade_dataset['Tomorrows Returns'] = trade_dataset['Tomorrows Returns'].shift(-1)
+trade_dataset['Tomorrows Returns'] = 0. # Create new column in trade_dataset and intialized with value of 0 <- floating-point
+trade_dataset['Tomorrows Returns'] = np.log(trade_dataset['Close']/trade_dataset['Close'].shift(1)) # Store closing price of today / yesterday 
+trade_dataset['Tomorrows Returns'] = trade_dataset['Tomorrows Returns'].shift(-1) # Shift values up by 1 so tmmrw values are stored against todays
 
-trade_dataset['Strategy Returns'] = 0.
-trade_dataset['Strategy Returns'] = np.where(trade_dataset['y_pred'] == True, 
-             trade_dataset['Tomorrows Returns'], - trade_dataset['Tomorrows Returns'])
+trade_dataset['Strategy Returns'] = 0. # Create new column intialized with value 0 <- floating-point
+trade_dataset['Strategy Returns'] = np.where(trade_dataset['y_pred'] == True, # Store value in Tomorrow's Returns if value in ypred column stored True
+             trade_dataset['Tomorrows Returns'], - trade_dataset['Tomorrows Returns']) # Else store negative of the vlue in Tomorrow's Returns in Strategy Returns
 
+# Compute the cumulative returns for the market and the strategy
 trade_dataset['Cumulative Market Returns'] = np.cumsum(trade_dataset['Tomorrows Returns'])
 trade_dataset['Cumulative Strategy Returns'] = np.cumsum(trade_dataset['Strategy Returns'])
 
+# Plot the returns
 plt.figure(figsize=(10,5))
 plt.plot(trade_dataset['Cumulative Market Returns'], color='r', label='Market Returns')
 plt.plot(trade_dataset['Cumulative Strategy Returns'], color='g', label='Strategy Returns')
