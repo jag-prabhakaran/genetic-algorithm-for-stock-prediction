@@ -43,16 +43,19 @@ test_end = n
 data_train = data[np.arange(train_start, train_end), :]
 data_test = data[np.arange(test_start, test_end), :]
 
+# Standardize the data to avoid bias
+scaler = MinMaxScaler(feature_range=(-1, 1)) # Scale inputs and targets
+scaler.fit(data_train) # Fit to data sets
+data_train = scaler.transform(data_train) # Transform function train data set
+data_test = scaler.transform(data_test) # Transform function test data set
 
-scaler = MinMaxScaler(feature_range=(-1, 1))
-scaler.fit(data_train)
-data_train = scaler.transform(data_train)
-data_test = scaler.transform(data_test)
+# Split the train and test data
+X_train = data_train[:, 0:-1] # Predictor from training data
+y_train = data_train[:, -1] # Target from training data
+X_test = data_test[:, 0:-1] # Predictor from testing data
+y_test = data_test[:, -1]# Target from testing data
 
-X_train = data_train[:, 0:-1]
-y_train = data_train[:, -1]
-X_test = data_test[:, 0:-1]
-y_test = data_test[:, -1]
+# BULIDING THE ANN
 
 n_features = X_train.shape[1]
 
