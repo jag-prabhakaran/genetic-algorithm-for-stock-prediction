@@ -7,8 +7,8 @@ import talib
 import random
 
 # Importing dataset
-dataset = pd.read_csv('')
-dataset = dataset.dropna()
+dataset = pd.read_csv('') # Import data set stored on computer
+dataset = dataset.dropna() # Drop missing values from data set
 dataset = dataset[['Open', 'High', 'Low', 'Close']] # No date, adjusted close, volume data
 
 # Preparing the dataset
@@ -26,7 +26,7 @@ dataset['Price_Rise'] = np.where(dataset['Close'].shift(-1) > dataset['Close'], 
 
 dataset = dataset.dropna() # Drops rows with NaN values
 
-data = dataset.iloc[:, 4:]
+data = dataset.iloc[:, 4:] # Remove OHLC data and keep input features and output in new data frame
 
 # Dimensions of data
 n = data.shape[0]
