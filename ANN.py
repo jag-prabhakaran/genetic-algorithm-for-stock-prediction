@@ -138,10 +138,3 @@ trade_dataset['Strategy Returns'] = np.where(trade_dataset['y_pred'] == True, # 
 # Compute the cumulative returns for the market and the strategy
 trade_dataset['Cumulative Market Returns'] = np.cumsum(trade_dataset['Tomorrows Returns'])
 trade_dataset['Cumulative Strategy Returns'] = np.cumsum(trade_dataset['Strategy Returns'])
-
-# Plot the returns
-plt.figure(figsize=(10,5))
-plt.plot(trade_dataset['Cumulative Market Returns'], color='r', label='Market Returns')
-plt.plot(trade_dataset['Cumulative Strategy Returns'], color='g', label='Strategy Returns')
-plt.legend()
-plt.show()
