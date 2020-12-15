@@ -9,7 +9,7 @@ import random
 # Importing dataset
 dataset = pd.read_csv('') # Import data set stored on computer
 dataset = dataset.dropna() # Drop missing values from data set
-dataset = dataset[['Open', 'High', 'Low', 'Close']] # No date, adjusted close, volume data
+dataset = dataset[['Open', 'High', 'Low', 'Close', 'Sentiment Analysis', 'Fractal Analysis']] # No date, adjusted close, volume data
 
 # Preparing the dataset
 # High - low price, close - open price, 3-day moving average, 10-day moving average, 30-day moving average, standard deviation for 5 days, relative strength index, Williams %R
