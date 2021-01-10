@@ -64,6 +64,13 @@ for ticker, news_table in news_tables.items():
         article_date = article_date.replace('Dec', '12')
         article_date = article_date.replace('Jan', '1')
         article_date = article_date.replace('Feb', '2')
+        article_date = article_date.replace('Mar', '3')
+        article_date = article_date.replace('Apr', '4')
+        article_date = article_date.replace('May', '5')
+        article_date = article_date.replace('June', '6')
+        article_date = article_date.replace('July', '7')
+        article_date = article_date.replace('Aug', '8')
+        article_date = article_date.replace('Sept', '9')
         article_date = datetime.strptime(article_date, '%m/%d/%y')
         if goal < article_date:
             parsed_data.append([ticker, date, time, title, url])
